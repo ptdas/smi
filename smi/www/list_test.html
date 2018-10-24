@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Test</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="/test.css">
+	<script type="text/javascript" src="/assets/frappe/js/lib/jquery/jquery.min.js"></script>
+    <script type="text/javascript">
+    	var user_id;
+    	var fullname;
+    	var assessment;
+		$.ajax({
+		    type: 'GET',
+		    url: '/api/method/smi.api.me',
+		    dataType: "json",
+		    async: false,
+		    success: function(result) {
+		    	assessment = result.message.assessment;
+		    	if(assessment != null){
+		    		window.location.href = "/test";
+		    	}
+		    	user_id = result.message.student.name;
+		    	fullname = result.message.student.title;
+		    },
+		    error: function(result) {
+		    	window.location.href = "/forbidden";
+		    }
+		});
+		$(document).ready(function(){
+			$("#nama").html(fullname);
+			$("#kelas").html(assessment);
+			$.ajax({
+				url: '/api/method/smi.api.get_list_test',
+				async: false,
+				success: function(result){
+					jQuery.each(result.message, function(i, list_test){
+						var html = "<tr><td>"+ parseInt(i + 1) +"</td><td>"+ list_test.name +"</td><td>"+ list_test.to_time +"</td><td>"+ list_test.course +"</td><td><button type='button' class='btn btn-primary take_test' id='"+ list_test.name +"'>Take Test</button></td></tr>";
+						$("#list_test").append(html);
+					});
+				}
+			});
+			$('.take_test').click(function() {
+				bodyParam = {
+					name : user_id,
+					assessment : this.id
+				}
+			  	$.ajax({
+					url: "/api/method/smi.api.take_test",
+					type: "POST",
+					data: JSON.stringify(bodyParam),
+					processData: false,
+					contentType: 'application/json',
+					success: function(output, status, xhr) {
+						window.location.href = "/test";
+					}
+				});
+			});
+		});
+	</script>
+</head>
+<body>
+	<div class="row">
+		<div class="col-md-2">
+			<div class="navbar">
+				<img src="/files/logo 2018-10-10 22:49:29.png" class="rounded-circle" width="100" height="100">
+				<p id="nama">Nama</p>
+				<p id="kelas">Kelas</p>
+				<p id="angkatan">Angkatan</p>
+				<p id="countdown">00:00:00</p>
+			</div>
+		</div>
+		<div class="col-md-10">
+			<div class="container" id="content">
+				<div class="row">
+					<div class="col-md-6">
+						<h1>Student Form Test</h1>
+					</div>
+					<div class="col-md-6">
+						<img src="/files/logo 2018-10-10 22:49:29.png" width="100" height="75" style="float: right;">
+					</div>
+					<hr>
+				</div>
+				<table class="table table-hover table-borderless">
+				  	<thead>
+				    	<tr>
+				      		<th scope="col">#</th>
+				      		<th scope="col">List Assessment</th>
+				      		<th scope="col">Until Time</th>
+				      		<th scope="col">Course</th>
+				      		<th scope="col">Action</th>
+				    	</tr>
+				  	</thead>
+				  	<tbody id="list_test"></tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+h1 {
+	font-style: italic;
+	color: #c50907;
+	text-align: left;
+	margin-top: 8vh;
+}
+img {
+	margin: 3vh;
+}
+p {
+	color: white;
+}
+hr {
+	border: 1px solid #c50907;
+	width: 97%;
+}
+.navbar {
+	position: fixed;
+	height: 100%;
+	background-color: #c50907;
+	display: inline;
+	text-align: center
+}
+#countdown {
+	font-weight: bold;
+	position: absolute;
+	margin-left: auto;
+	margin-right: auto;
+	left: 0;
+	right: 0;
+	bottom: 0px;
+}
+#nama {
+	font-weight: bold;
+}

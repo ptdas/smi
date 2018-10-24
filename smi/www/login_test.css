@@ -1,0 +1,97 @@
+html, body {
+	height: 100%;
+}
+body {
+	background-image: url('/files/hd_background 2018-10-10 22:40:05.png');
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+}
+h1 {
+	font-style: italic;
+	color: #c50907;
+	text-align: center;
+	padding-bottom: 2vh;
+}
+hr {
+	border: 1px solid #c50907;
+	width: 50%;
+}
+p {
+	text-align: center;
+	padding-bottom: 3vh;
+}
+button {
+    background-color: #c50907;
+    border: 2px solid #c50907;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    -webkit-transition-duration: 0.4s;
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+button:hover {
+    background-color: white;
+    color: #c50907;
+}
+img {
+	width: 100%;
+	padding: 10vh 10vh 0vh 10vh;
+}
+.container {
+	margin: auto;
+}
+input         {
+  font-size:18px;
+  padding:10px 10px 10px 5px;
+  display:block;
+  width:100%;
+  border:none;
+  background-color: #e3e3e3;
+  border-bottom:1px solid #c50907;
+}
+input:focus     { outline:none; }
+/* LABEL ======================================= */
+label          {
+  color:#999; 
+  font-size:18px;
+  font-weight:normal;
+  position:relative;
+  top:-5vh;
+  pointer-events:none;
+  transition:0.2s ease all;
+  -moz-transition:0.2s ease all; 
+  -webkit-transition:0.2s ease all;
+}
+
+/* active state */
+input:focus ~ label, input:valid ~ label     {
+  top:-10vh;
+  font-size:14px;
+  color:#c50907;
+}
+/* BOTTOM BARS ================================= */
+.bar  { position:relative; display:block; width:100%; }
+.bar:before, .bar:after   {
+  content:'';
+  height:2px; 
+  width:0;
+  bottom:1px; 
+  position:absolute;
+  background:#c50907; 
+  transition:0.2s ease all; 
+}
+.bar:before {
+  left:50%;
+}
+.bar:after {
+  right:50%; 
+}
+/* active state */
+input:focus ~ .bar:before, input:focus ~ .bar:after {
+  width:50%;
+}

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Test</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+	<script type="text/javascript" src="/assets/frappe/js/lib/jquery/jquery.min.js"></script>
+    <script type="text/javascript">
+    	var user_id;
+    	var fullname;
+    	var assessment;
+    	var test;
+    	var finish;
+		$.ajax({
+		    type: 'GET',
+		    url: '/api/method/smi.api.me',
+		    dataType: "json",
+		    async: false,
+		    success: function(result) {
+		    	assessment = result.message.assessment.name;
+		    	if(assessment == null){
+		    		window.location.href = "/list_test";
+		    	}
+		    	test = result.message.assessment.test;
+		    	var date = result.message.assessment.schedule_date + " " + result.message.assessment.to_time;
+		    	finish = new Date(date);
+		    	user_id = result.message.student.name;
+		    	fullname = result.message.student.title;
+		    },
+		    error: function(result) {
+		    	window.location.href = "/forbidden";
+		    }
+		});
+    	$(document).ready(function(){
+    		$("#nama").html(fullname);
+    		$("#kelas").html(test);
+    		startTimer(finish);
+    		var list_question;
+    		bodyParam = {
+				test : test
+			}
+    		$.ajax({
+				url: '/api/method/smi.api.get_question',
+				type: "POST",
+				data: JSON.stringify(bodyParam),
+				processData: false,
+				contentType: 'application/json',
+			    success: function(result){
+			    	list_question = result.message.question;
+			    	jQuery.each(result.message.question, function(i, question){
+			    		var html = "<tr><td>"+ parseInt(i + 1) +"</td><td>"+ question["question"] +"</td>";
+			    		html += "<td>";
+				    	if(question["category"] == "Multiple Choice"){
+				    		jQuery.each(result.message.question[i].choice, function(j, choice){
+					    		html += "<div class='form-check'>";
+					    		html += "<input class='form-check-input answer' type='radio' id='"+ choice["name"] +"' name='"+ question["name"] +"'><label class='form-check-label'>";
+					    		html += choice["choice"];
+					    		html += "</label></div>";
+					    	});
+				    	}
+					    else if(question["category"] == "Check"){
+					    	jQuery.each(result.message.question[i].choice, function(j, choice){
+					    		html += "<div class='form-check'>";
+					    		html += "<input class='form-check-input answer' type='checkbox' id='"+ choice["name"] +"' name='"+ question["name"] +"'><label class='form-check-label'>";
+					    		html += choice["choice"];
+					    		html += "</label></div>";
+					    	});
+					    }
+					    else if(question["category"] == "Essay"){
+					    	html += "<div class='form-group'><textarea class='form-control answer' name='"+ question["name"] +"'rows='3'></textarea>"
+					    }
+				    	html += "</td></tr>";
+				    	$("#question").append(html);
+				    });
+			    }
+			});
+			$("#submit").click(function(){
+				var submit_answer = $(".answer");
+				var bodyParam = {};
+				var answer = {};
+				var question = {};
+				var checked = {};
+				bodyParam["user_id"] = user_id;
+				bodyParam["test"] = test;
+				for(var i = 0; i < submit_answer.length; i++){
+					answer[i] = submit_answer[i].id || submit_answer[i].value;
+					question[i] = submit_answer[i].name;
+					checked[i] = submit_answer[i].checked || false;
+				}
+				bodyParam["answer"] = answer;
+				bodyParam["question"] = question;
+				bodyParam["checked"] = checked;
+				if(confirm(JSON.stringify(bodyParam))){
+					$.ajax({
+						url: "/api/method/smi.api.set_submited_answer",
+						type: "POST",
+						data: JSON.stringify(bodyParam),
+						processData: false,
+						contentType: 'application/json',
+						success: function(output, status, xhr) {
+							alert(output.message);
+						},
+						error: function(output, status, xhr) {
+							alert("GAGAL");
+						}
+					});
+				}
+				/*jQuery.each($("input:checked"), function(i, answer){
+					$.ajax({
+						url: "/api/method/smi.api.set_submited_answer",
+						type: "GET",
+						data: {
+							kode_retail: $("#"),
+							id: result.stocks[i].id,
+							keterangan: result.stocks[i].keterangan,
+							kode_barang: result.stocks[i].kode_barang,
+							kuantitas: result.stocks[i].kuantitas,
+							stok_akhir: result.stocks[i].stok_akhir,
+							tanggal_awal: result.stocks[i].tanggal_awal
+				        },
+						success: function(result){
+
+						}
+					});
+				});*/
+			});
+			function startTimer(duration){
+				interval = setInterval(function() {
+				    var now = new Date().getTime();
+				    var distance = duration - now;
+				    var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        			hours = hours < 10 ? "0" + hours : hours;
+				    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+				    minutes = minutes < 10 ? "0" + minutes : minutes;
+				    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+				    seconds = seconds < 10 ? "0" + seconds : seconds;
+				    document.getElementById("countdown").innerHTML = hours + ":" + minutes + ":" + seconds;
+				    if (distance < 0) {
+				        clearInterval(interval);
+				        document.getElementById("countdown").innerHTML = "EXPIRED";
+				    }
+				}, 1000);
+			}
+    	});
+    </script>
+</head>
+<body>
+	<div class="row">
+		<div class="col-md-2">
+			<div class="navbar">
+				<img src="/files/logo 2018-10-10 22:49:29.png" class="rounded-circle" width="100" height="100">
+				<p id="nama">Nama</p>
+				<p id="kelas">Kelas</p>
+				<p id="angkatan">Angkatan</p>
+				<p id="countdown">00:00:00</p>
+			</div>
+		</div>
+		<div class="col-md-10">
+			<div class="container" id="content">
+				<div class="row">
+					<div class="col-md-6">
+						<h1>Student Form Test</h1>
+					</div>
+					<div class="col-md-6">
+						<img src="/files/logo 2018-10-10 22:49:29.png" width="100" height="75" style="float: right;">
+					</div>
+					<hr>
+				</div>
+				<table class="table table-hover table-borderless">
+				  <thead>
+				    <tr>
+				      	<th scope="col">#</th>
+				      	<th scope="col">Question</th>
+				      	<th scope="col">Answer</th>
+				    </tr>
+				  </thead>
+				  	<tbody id="question"></tbody>
+				</table>
+				<button type="button" id="submit" class="btn btn-outline-primary btn-lg btn-block">Submit</button>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+</body>
+</html>
